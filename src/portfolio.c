@@ -59,14 +59,93 @@ void metrics() {
 /* ---------- Placeholders for teammates to implement (do not modify) ---------- */
 
 /* Person B will implement buying logic here */
+/* --------- Person B: BUY FUNCTION ----------- */
 void buy() {
-    printf("[Person B] buy() not implemented yet.\n");
+    char sym[SYMBOL_LEN];
+    int q;
+    double p;
+
+    printf("Enter stock symbol: ");
+    scanf("%15s", sym);
+    printf("Enter quantity: ");
+    scanf("%d", &q);
+    printf("Enter buy price: ");
+    scanf("%lf", &p);
+
+    // check if exists
+    for(int i = 0; i < count; i++) {
+        if(strcmp(portfolio[i].symbol, sym) == 0) {
+            // update average buy price
+            double old_cost = portfolio[i].qty * portfolio[i].buy_price;
+            double new_cost = q * p;
+            portfolio[i].qty += q;
+            portfolio[i].buy_price = (old_cost + new_cost) / portfolio[i].qty;
+            portfolio[i].cur_price = p;
+            printf("Updated %s\n", sym);
+            return;
+        }
+    }
+
+    // add new stock
+    if(count < MAX_STOCKS) {
+        strcpy(portfolio[count].symbol, sym);
+        portfolio[count].qty = q;
+        portfolio[count].buy_price = p;
+        portfolio[count].cur_price = p;
+        count++;
+        printf("Added %s to portfolio\n", sym);
+    } else {
+        printf("Portfolio full! Cannot buy.\n");
+    }
 }
 
-/* Person B will implement selling logic here */
+/* --------- Person B: SELL FUNCTION ----------- */
 void sell() {
-    printf("[Person B] sell() not implemented yet.\n");
+    char sym[SYMBOL_LEN];
+    int q;
+    double p;
+
+    printf("Enter stock symbol: ");
+    scanf("%15s", sym);
+
+    int index = -1;
+    for(int i = 0; i < count; i++) {
+        if(strcmp(portfolio[i].symbol, sym) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if(index == -1) {
+        printf("Stock not found!\n");
+        return;
+    }
+
+    printf("Enter quantity to sell: ");
+    scanf("%d", &q);
+    printf("Enter sell price: ");
+    scanf("%lf", &p);
+
+    if(q > portfolio[index].qty) {
+        printf("You don't have enough shares!\n");
+        return;
+    }
+
+    portfolio[index].qty -= q;
+    portfolio[index].cur_price = p;
+
+    if(portfolio[index].qty == 0) {
+        // remove stock from array
+        for(int j = index; j < count - 1; j++) {
+            portfolio[j] = portfolio[j + 1];
+        }
+        count--;
+        printf("All shares sold. Stock removed.\n");
+    } else {
+        printf("Sold %d shares of %s\n", q, sym);
+    }
 }
+
 
 /* Person C will implement price updates here */
 void update_prices() {
